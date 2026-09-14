@@ -1,0 +1,4 @@
+-keep class com.anter.plusmessenger.data.api.models.** { *; }
+-keepattributes Signature
+-keepattributes *Annotation*
+-keepclassmembers class kotlin.Metadata { public <methods>; }

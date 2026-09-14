@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Plus Messenger</string>
+    <string name="login_title">تسجيل الدخول</string>
+    <string name="login_identifier">البريد أو الهاتف أو اسم المستخدم</string>
+    <string name="login_password">كلمة المرور</string>
+    <string name="login_submit">دخول</string>
+    <string name="login_loading">جارٍ تسجيل الدخول…</string>
+    <string name="login_error">تعذر تسجيل الدخول، تحقق من بياناتك.</string>
+    <string name="conversations_title">المحادثات</string>
+    <string name="conversations_empty">لا توجد محادثات بعد.</string>
+    <string name="conversations_loading">جارٍ تحميل المحادثات…</string>
+    <string name="conversations_error">تعذر تحميل المحادثات.</string>
+    <string name="logout">تسجيل الخروج</string>
+</resources>
