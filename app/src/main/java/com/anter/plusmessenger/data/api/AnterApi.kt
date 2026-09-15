@@ -10,10 +10,10 @@ import retrofit2.http.POST
 
 interface AnterApi {
 
-    @POST("api/mobile/v1/auth/login")
+    @POST("api/mobile/auth/login")
     suspend fun login(@Body body: LoginRequest): LoginResponse
 
-    @GET("api/mobile/v1/conversations")
+    @GET("api/mobile/conversations")
     suspend fun getConversations(
         @Header("Authorization") bearer: String
     ): ConversationsResponse

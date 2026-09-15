@@ -1,8 +1,8 @@
 package com.anter.plusmessenger.util
 
 object Constants {
-    // رابط ANTER على Render (يمكن تغييره لاحقًا)
-    const val BASE_URL = "https://anter.onrender.com/"
+    // رابط ANTER الفعلي على Render
+    const val BASE_URL = "https://anter-1.onrender.com/"
     const val PREF_NAME = "plus_messenger_prefs"
     const val KEY_TOKEN = "auth_token"
     const val KEY_USER_ID = "user_id"
