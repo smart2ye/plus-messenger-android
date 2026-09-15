@@ -13,14 +13,12 @@ sealed class ConversationsResult {
     data class Error(val message: String) : ConversationsResult()
 }
 
-private data class ErrorBody(val error: String? = null)
-
 @Singleton
 class ConversationsRepository @Inject constructor(
     private val api: AnterApi
 ) {
     private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
-    private val errorAdapter = moshi.adapter(ErrorBody::class.java)
+    private val errorAdapter = moshi.adapter(ApiError::class.java)
 
     suspend fun load(): ConversationsResult {
         return try {

@@ -2,6 +2,7 @@ package com.anter.plusmessenger.data.repository
 
 import com.anter.plusmessenger.data.api.AnterApi
 import com.anter.plusmessenger.data.api.models.LoginRequest
+import com.anter.plusmessenger.data.api.models.ApiError
 import com.anter.plusmessenger.data.local.TokenStore
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -14,15 +15,13 @@ sealed class AuthResult {
     data class Error(val message: String) : AuthResult()
 }
 
-private data class ErrorBody(val error: String? = null)
-
 @Singleton
 class AuthRepository @Inject constructor(
     private val api: AnterApi,
     private val tokenStore: TokenStore
 ) {
     private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
-    private val errorAdapter = moshi.adapter(ErrorBody::class.java)
+    private val errorAdapter = moshi.adapter(ApiError::class.java)
 
     suspend fun login(identifier: String, password: String): AuthResult {
         return try {
