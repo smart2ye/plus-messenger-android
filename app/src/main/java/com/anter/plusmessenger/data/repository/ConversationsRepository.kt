@@ -23,7 +23,7 @@ class ConversationsRepository @Inject constructor(
 
     suspend fun load(): ConversationsResult {
         return try {
-            val resp = api.getConversations("")
+            val resp = api.getConversations()
             if (!resp.error.isNullOrBlank()) {
                 return ConversationsResult.Error(resp.error)
             }
