@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -14,7 +15,7 @@ private val Context.dataStore by preferencesDataStore(name = "plus_messenger_pre
 
 @Singleton
 class TokenStore @Inject constructor(
-    private val context: Context
+    @ApplicationContext private val context: Context
 ) {
     private val KEY_TOKEN = stringPreferencesKey("auth_token")
     private val KEY_USER_ID = intPreferencesKey("user_id")

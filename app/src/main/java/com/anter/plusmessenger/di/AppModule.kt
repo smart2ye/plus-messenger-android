@@ -1,16 +1,13 @@
 package com.anter.plusmessenger.di
 
-import android.content.Context
 import com.anter.plusmessenger.data.api.AnterApi
 import com.anter.plusmessenger.data.api.AuthInterceptor
-import com.anter.plusmessenger.data.local.TokenStore
 import com.anter.plusmessenger.util.Constants
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -22,10 +19,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-
-    @Provides
-    @Singleton
-    fun provideContext(@ApplicationContext ctx: Context): Context = ctx
 
     @Provides
     @Singleton
@@ -60,8 +53,4 @@ object AppModule {
     @Provides
     @Singleton
     fun provideApi(retrofit: Retrofit): AnterApi = retrofit.create(AnterApi::class.java)
-
-    @Provides
-    @Singleton
-    fun provideTokenStore(@ApplicationContext ctx: Context): TokenStore = TokenStore(ctx)
 }
