@@ -27,3 +27,27 @@
 - إشعارات FCM
 - مزامنة جهات الاتصال (Contact Matching)
 - الريلز
+
+---
+
+## حالة التطبيق (15 سبتمبر 2026)
+
+### ✅ يعمل
+- بناء APK تلقائيًا على GitHub Actions (Debug + Release).
+- تسجيل دخول فعلي على `anter-1.onrender.com`.
+- قائمة محادثات تُحمَّل من `/api/mobile/conversations`.
+- توكن محفوظ في DataStore.
+- RTL كامل + Material 3 + وضع داكن.
+
+### 🔜 لم يُبنَ بعد
+- شاشة الدردشة الفعلية (فتح محادثة + إرسال + استقبال).
+- مزامنة جهات الاتصال (`/api/mobile/suggested-follows` جاهز على السيرفر).
+- الإشعارات (FCM).
+- الريلز.
+- المنشورات.
+- تحديث الإجراءات إلى `setup-java@v5` و`actions/checkout@v4`.
+
+### 🔗 الربط
+- الرابط: `https://anter-1.onrender.com/`
+- الـPrefix الفعلي: `/api/mobile` (وليس `/api/mobile/v1`).
+- التوكن: `accessToken` (وليس `token`).
