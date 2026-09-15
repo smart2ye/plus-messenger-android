@@ -1,6 +1,7 @@
 package com.anter.plusmessenger.data.repository
 
 import com.anter.plusmessenger.data.api.AnterApi
+import com.anter.plusmessenger.data.api.models.ApiError
 import com.anter.plusmessenger.data.api.models.ConversationDto
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
