@@ -1,6 +1,7 @@
 package com.anter.plusmessenger.ui.screens.conversations
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,6 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @Composable
 fun ConversationsScreen(
     onLogout: () -> Unit,
+    onOpenChat: (String) -> Unit,
     vm: ConversationsViewModel = hiltViewModel()
 ) {
     val state by vm.state.collectAsState()
@@ -70,7 +72,7 @@ fun ConversationsScreen(
                 else -> {
                     LazyColumn(Modifier.fillMaxSize()) {
                         items(state.items, key = { it.user.id }) { item ->
-                            ConversationRow(item)
+                            ConversationRow(item) { onOpenChat(item.user.username) }
                             HorizontalDivider(
                                 modifier = Modifier.padding(start = 72.dp),
                                 color = MaterialTheme.colorScheme.surfaceVariant
@@ -84,10 +86,14 @@ fun ConversationsScreen(
 }
 
 @Composable
-private fun ConversationRow(item: com.anter.plusmessenger.data.api.models.ConversationDto) {
+private fun ConversationRow(
+    item: com.anter.plusmessenger.data.api.models.ConversationDto,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

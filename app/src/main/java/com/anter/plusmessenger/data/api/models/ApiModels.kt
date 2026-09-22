@@ -47,5 +47,55 @@ data class MessageDto(
     val content: String? = null,
     @Json(name = "createdAt") val createdAt: String? = null,
     @Json(name = "senderId") val senderId: Int? = null,
-    @Json(name = "receiverId") val receiverId: Int? = null
+    @Json(name = "receiverId") val receiverId: Int? = null,
+    @Json(name = "isRead") val isRead: Boolean = false,
+    @Json(name = "parentId") val parentId: Int? = null,
+    val parent: ParentMessageDto? = null,
+    val attachment: AttachmentDto? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class ParentMessageDto(
+    val id: Int,
+    @Json(name = "senderId") val senderId: Int? = null,
+    val content: String? = null,
+    @Json(name = "isDeletedEveryone") val isDeletedEveryone: Boolean = false
+)
+
+@JsonClass(generateAdapter = true)
+data class AttachmentDto(
+    val name: String? = null,
+    @Json(name = "mimeType") val mimeType: String? = null,
+    val kind: String? = null,
+    @Json(name = "downloadPath") val downloadPath: String? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class MessagesResponse(
+    val user: UserDto? = null,
+    val messages: List<MessageDto>? = emptyList(),
+    val error: String? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class SendMessageRequest(
+    val content: String
+)
+
+@JsonClass(generateAdapter = true)
+data class SendMessageResponse(
+    val message: MessageDto? = null,
+    @Json(name = "assistantMessage") val assistantMessage: MessageDto? = null,
+    val error: String? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class TypingRequest(
+    @Json(name = "isTyping") val isTyping: Boolean
+)
+
+@JsonClass(generateAdapter = true)
+data class TypingResponse(
+    @Json(name = "isTyping") val isTyping: Boolean = false,
+    val error: String? = null
 )
