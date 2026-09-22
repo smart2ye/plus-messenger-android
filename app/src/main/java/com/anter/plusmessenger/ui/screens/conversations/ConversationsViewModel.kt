@@ -32,8 +32,16 @@ class ConversationsViewModel @Inject constructor(
     init { refresh() }
 
     fun refresh() {
-        _state.value = _state.value.copy(loading = true, error = null)
         viewModelScope.launch {
+            // 1) اعرض الكاش فورًا
+            val cached = repo.getCachedConversations()
+            if (cached.isNotEmpty()) {
+                _state.value = _state.value.copy(loading = false, items = cached)
+            } else {
+                _state.value = _state.value.copy(loading = true, error = null)
+            }
+
+            // 2) ثم حمّل من الشبكة
             val convResult = repo.load()
             val contactsResult = repo.loadContacts()
 
@@ -46,10 +54,16 @@ class ConversationsViewModel @Inject constructor(
                         contacts = contacts
                     )
                 }
-                is ConversationsResult.Error -> _state.value = ConversationsUiState(
-                    loading = false,
-                    error = convResult.message
-                )
+                is ConversationsResult.Error -> {
+                    if (cached.isEmpty()) {
+                        _state.value = ConversationsUiState(
+                            loading = false,
+                            error = convResult.message
+                        )
+                    } else {
+                        _state.value = _state.value.copy(loading = false)
+                    }
+                }
             }
         }
     }

@@ -3,6 +3,8 @@ package com.anter.plusmessenger.data.repository
 import com.anter.plusmessenger.data.api.AnterApi
 import com.anter.plusmessenger.data.api.models.ApiError
 import com.anter.plusmessenger.data.api.models.ConversationDto
+import com.anter.plusmessenger.data.local.db.CachedConversationEntity
+import com.anter.plusmessenger.data.local.db.ConversationDao
 import com.anter.plusmessenger.data.api.models.UserDto
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -22,10 +24,22 @@ sealed class ContactsResult {
 
 @Singleton
 class ConversationsRepository @Inject constructor(
-    private val api: AnterApi
+    private val api: AnterApi,
+    private val conversationDao: ConversationDao
 ) {
     private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
     private val errorAdapter = moshi.adapter(ApiError::class.java)
+    private val conversationAdapter = moshi.adapter(ConversationDto::class.java)
+
+    suspend fun getCachedConversations(): List<ConversationDto> {
+        return try {
+            conversationDao.getAll().mapNotNull { entity ->
+                try { conversationAdapter.fromJson(entity.json) } catch (_: Throwable) { null }
+            }
+        } catch (_: Throwable) {
+            emptyList()
+        }
+    }
 
     suspend fun load(): ConversationsResult {
         return try {
@@ -33,7 +47,18 @@ class ConversationsRepository @Inject constructor(
             if (!resp.error.isNullOrBlank()) {
                 return ConversationsResult.Error(resp.error)
             }
-            ConversationsResult.Success(resp.conversations ?: emptyList())
+            val items = resp.conversations ?: emptyList()
+            if (items.isNotEmpty()) {
+                val entities = items.map { conv ->
+                    CachedConversationEntity(
+                        username = conv.user.username,
+                        json = conversationAdapter.toJson(conv),
+                        sortedAtEpoch = System.currentTimeMillis()
+                    )
+                }
+                conversationDao.upsertAll(entities)
+            }
+            ConversationsResult.Success(items)
         } catch (e: HttpException) {
             ConversationsResult.Error(parseError(e) ?: "فشل تحميل المحادثات (${e.code()}).")
         } catch (e: Exception) {
