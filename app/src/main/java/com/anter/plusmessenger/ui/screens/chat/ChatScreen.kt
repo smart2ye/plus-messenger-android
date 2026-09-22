@@ -254,9 +254,11 @@ private fun MessageBubble(
 
 private fun formatTime(iso: String): String {
     return try {
-        val t = iso.substringAfter("T", "")
-        if (t.length >= 5) t.substring(0, 5) else t
+        // الخادم يرسل UTC → نحوله لتوقيت الجهاز المحلي
+        val instant = java.time.Instant.parse(iso)
+        val local = instant.atZone(java.time.ZoneId.systemDefault())
+        String.format("%02d:%02d", local.hour, local.minute)
     } catch (_: Throwable) {
-        ""
+        iso.substringAfter("T", "").take(5)
     }
 }
