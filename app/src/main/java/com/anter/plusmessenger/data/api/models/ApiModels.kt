@@ -142,3 +142,54 @@ data class ReportUserResponse(
     @Json(name = "reportId") val reportId: Int? = null,
     val error: String? = null
 )
+
+
+@JsonClass(generateAdapter = true)
+data class SettingsResponse(
+    @Json(name = "profileVisibility") val profileVisibility: String = "public",
+    @Json(name = "wallVisibility") val wallVisibility: String = "public",
+    @Json(name = "hideFollowers") val hideFollowers: Boolean = false,
+    @Json(name = "showOnlineStatus") val showOnlineStatus: Boolean = true,
+    @Json(name = "messagePrivacy") val messagePrivacy: String = "everyone",
+    val error: String? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class UpdateSettingsRequest(
+    @Json(name = "profileVisibility") val profileVisibility: String? = null,
+    @Json(name = "wallVisibility") val wallVisibility: String? = null,
+    @Json(name = "hideFollowers") val hideFollowers: Boolean? = null,
+    @Json(name = "showOnlineStatus") val showOnlineStatus: Boolean? = null,
+    @Json(name = "messagePrivacy") val messagePrivacy: String? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class UpdateSettingsResponse(
+    @Json(name = "success") val success: Boolean = false,
+    val error: String? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class BlockedUsersResponse(
+    val blocked: List<BlockedUserDto>? = emptyList(),
+    val error: String? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class BlockedUserDto(
+    val id: Int,
+    val username: String,
+    val name: String? = null,
+    val avatar: String? = null,
+    @Json(name = "isOnline") val isOnline: Boolean? = false,
+    val bio: String? = null,
+    @Json(name = "lastSeen") val lastSeen: String? = null,
+    @Json(name = "blockedAt") val blockedAt: String? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class BlockResponse(
+    @Json(name = "success") val success: Boolean = false,
+    @Json(name = "isBlocked") val isBlocked: Boolean = false,
+    val error: String? = null
+)

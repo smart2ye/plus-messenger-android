@@ -50,6 +50,12 @@ fun UserProfileScreen(
             vm.clearReportResult()
         }
     }
+    LaunchedEffect(state.blockMessage) {
+        state.blockMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            vm.clearBlockMessage()
+        }
+    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -198,9 +204,9 @@ fun UserProfileScreen(
                             Spacer(Modifier.height(10.dp))
 
                             OutlinedButton(
-                                onClick = { /* الحظر في المرحلة التالية */ },
+                                onClick = { vm.toggleBlock() },
                                 modifier = Modifier.fillMaxWidth().height(50.dp),
-                                enabled = false,
+                                enabled = !state.blockInFlight,
                                 colors = ButtonDefaults.outlinedButtonColors(
                                     contentColor = MaterialTheme.colorScheme.error
                                 )

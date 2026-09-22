@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,6 +32,7 @@ fun ConversationsScreen(
     onLogout: () -> Unit,
     onOpenChat: (String) -> Unit,
     onOpenProfile: (String) -> Unit,
+    onOpenSettings: () -> Unit,
     vm: ConversationsViewModel = hiltViewModel()
 ) {
     val state by vm.state.collectAsState()
@@ -42,6 +44,9 @@ fun ConversationsScreen(
                 actions = {
                     IconButton(onClick = { vm.refresh() }) {
                         Icon(Icons.Filled.Refresh, contentDescription = "تحديث")
+                    }
+                    IconButton(onClick = onOpenSettings) {
+                        Icon(Icons.Filled.Settings, contentDescription = "الإعدادات")
                     }
                     IconButton(onClick = onLogout) {
                         Icon(Icons.Filled.Logout, contentDescription = "تسجيل الخروج")

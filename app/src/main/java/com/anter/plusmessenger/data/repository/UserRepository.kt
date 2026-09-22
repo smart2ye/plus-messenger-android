@@ -2,7 +2,9 @@ package com.anter.plusmessenger.data.repository
 
 import com.anter.plusmessenger.data.api.AnterApi
 import com.anter.plusmessenger.data.api.models.ApiError
+import com.anter.plusmessenger.data.api.models.BlockedUserDto
 import com.anter.plusmessenger.data.api.models.ReportUserRequest
+import com.anter.plusmessenger.data.api.models.UpdateSettingsRequest
 import com.anter.plusmessenger.data.api.models.UserProfileDto
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -18,6 +20,21 @@ sealed class ProfileResult {
 sealed class ReportResult {
     data class Success(val reportId: Int?) : ReportResult()
     data class Error(val message: String) : ReportResult()
+}
+
+sealed class SettingsResult {
+    data class Success(val settings: com.anter.plusmessenger.data.api.models.SettingsResponse) : SettingsResult()
+    data class Error(val message: String) : SettingsResult()
+}
+
+sealed class BlockedUsersResult {
+    data class Success(val items: List<BlockedUserDto>) : BlockedUsersResult()
+    data class Error(val message: String) : BlockedUsersResult()
+}
+
+sealed class SimpleResult {
+    data class Success(val isBlocked: Boolean? = null) : SimpleResult()
+    data class Error(val message: String) : SimpleResult()
 }
 
 @Singleton
@@ -55,6 +72,65 @@ class UserRepository @Inject constructor(
             ReportResult.Error(parseError(e) ?: "فشل إرسال البلاغ (${e.code()}).")
         } catch (e: Exception) {
             ReportResult.Error(e.message ?: "تعذر الاتصال بالخادم.")
+        }
+    }
+
+    suspend fun loadSettings(): SettingsResult {
+        return try {
+            val resp = api.getSettings()
+            SettingsResult.Success(resp)
+        } catch (e: HttpException) {
+            SettingsResult.Error(parseError(e) ?: "فشل تحميل الإعدادات (${e.code()}).")
+        } catch (e: Exception) {
+            SettingsResult.Error(e.message ?: "تعذر الاتصال بالخادم.")
+        }
+    }
+
+    suspend fun updateSettings(body: UpdateSettingsRequest): SimpleResult {
+        return try {
+            val resp = api.updateSettings(body)
+            if (resp.success) SimpleResult.Success()
+            else SimpleResult.Error(resp.error ?: "فشل حفظ الإعدادات.")
+        } catch (e: HttpException) {
+            SimpleResult.Error(parseError(e) ?: "فشل حفظ الإعدادات (${e.code()}).")
+        } catch (e: Exception) {
+            SimpleResult.Error(e.message ?: "تعذر الاتصال بالخادم.")
+        }
+    }
+
+    suspend fun loadBlockedUsers(): BlockedUsersResult {
+        return try {
+            val resp = api.getBlockedUsers()
+            if (!resp.error.isNullOrBlank()) BlockedUsersResult.Error(resp.error)
+            else BlockedUsersResult.Success(resp.blocked ?: emptyList())
+        } catch (e: HttpException) {
+            BlockedUsersResult.Error(parseError(e) ?: "فشل تحميل المحظورين (${e.code()}).")
+        } catch (e: Exception) {
+            BlockedUsersResult.Error(e.message ?: "تعذر الاتصال بالخادم.")
+        }
+    }
+
+    suspend fun blockUser(username: String): SimpleResult {
+        return try {
+            val resp = api.blockUser(username)
+            if (resp.success) SimpleResult.Success(resp.isBlocked)
+            else SimpleResult.Error(resp.error ?: "فشل الحظر.")
+        } catch (e: HttpException) {
+            SimpleResult.Error(parseError(e) ?: "فشل الحظر (${e.code()}).")
+        } catch (e: Exception) {
+            SimpleResult.Error(e.message ?: "تعذر الاتصال بالخادم.")
+        }
+    }
+
+    suspend fun unblockUser(username: String): SimpleResult {
+        return try {
+            val resp = api.unblockUser(username)
+            if (resp.success) SimpleResult.Success(resp.isBlocked)
+            else SimpleResult.Error(resp.error ?: "فشل رفع الحظر.")
+        } catch (e: HttpException) {
+            SimpleResult.Error(parseError(e) ?: "فشل رفع الحظر (${e.code()}).")
+        } catch (e: Exception) {
+            SimpleResult.Error(e.message ?: "تعذر الاتصال بالخادم.")
         }
     }
 

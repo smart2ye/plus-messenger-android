@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.anter.plusmessenger.data.api.models.UserProfileDto
 import com.anter.plusmessenger.data.repository.ProfileResult
 import com.anter.plusmessenger.data.repository.ReportResult
+import com.anter.plusmessenger.data.repository.SimpleResult
 import com.anter.plusmessenger.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +21,9 @@ data class UserProfileUiState(
     val error: String? = null,
     val reportInFlight: Boolean = false,
     val reportSuccess: Boolean = false,
-    val reportError: String? = null
+    val reportError: String? = null,
+    val blockInFlight: Boolean = false,
+    val blockMessage: String? = null
 )
 
 @HiltViewModel
@@ -67,6 +70,34 @@ class UserProfileViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun toggleBlock() {
+        val u = _state.value.user ?: return
+        if (_state.value.blockInFlight) return
+        _state.value = _state.value.copy(blockInFlight = true, blockMessage = null)
+        viewModelScope.launch {
+            val r = if (u.isBlocked) repo.unblockUser(u.username)
+                    else repo.blockUser(u.username)
+            when (r) {
+                is SimpleResult.Success -> {
+                    val nowBlocked = r.isBlocked ?: !u.isBlocked
+                    _state.value = _state.value.copy(
+                        blockInFlight = false,
+                        blockMessage = if (nowBlocked) "تم حظر المستخدم." else "تم رفع الحظر.",
+                        user = u.copy(isBlocked = nowBlocked, isMutual = if (nowBlocked) false else u.isMutual)
+                    )
+                }
+                is SimpleResult.Error -> _state.value = _state.value.copy(
+                    blockInFlight = false,
+                    blockMessage = r.message
+                )
+            }
+        }
+    }
+
+    fun clearBlockMessage() {
+        _state.value = _state.value.copy(blockMessage = null)
     }
 
     fun clearReportResult() {

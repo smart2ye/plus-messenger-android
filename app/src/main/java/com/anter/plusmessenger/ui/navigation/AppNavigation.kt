@@ -19,12 +19,14 @@ import com.anter.plusmessenger.ui.screens.chat.ChatScreen
 import com.anter.plusmessenger.ui.screens.conversations.ConversationsScreen
 import com.anter.plusmessenger.ui.screens.login.LoginScreen
 import com.anter.plusmessenger.ui.screens.profile.UserProfileScreen
+import com.anter.plusmessenger.ui.screens.settings.SettingsScreen
 
 object Routes {
     const val LOGIN = "login"
     const val CONVERSATIONS = "conversations"
     const val CHAT = "chat/{username}"
     const val USER_PROFILE = "user/{username}"
+    const val SETTINGS = "settings"
     fun chat(username: String) = "chat/$username"
     fun userProfile(username: String) = "user/$username"
 }
@@ -70,6 +72,9 @@ fun AppNavigation() {
                 },
                 onOpenProfile = { username ->
                     navController.navigate(Routes.userProfile(username))
+                },
+                onOpenSettings = {
+                    navController.navigate(Routes.SETTINGS)
                 }
             )
         }
@@ -96,6 +101,10 @@ fun AppNavigation() {
                     navController.navigate(Routes.chat(username))
                 }
             )
+        }
+
+        composable(Routes.SETTINGS) {
+            SettingsScreen(onBack = { navController.popBackStack() })
         }
     }
 }
