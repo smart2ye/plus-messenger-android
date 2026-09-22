@@ -17,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -133,7 +134,7 @@ private fun ConversationRow(
                         .size(14.dp)
                         .align(Alignment.BottomEnd)
                         .clip(CircleShape)
-                        .background(androidx.compose.ui.graphics.Color(0xFF26A649))
+                        .background(Color(0xFF26A649))
                         .border(2.dp, MaterialTheme.colorScheme.surface, CircleShape)
                 )
             }
