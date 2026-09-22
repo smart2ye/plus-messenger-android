@@ -3,7 +3,13 @@ package com.anter.plusmessenger.di
 import com.anter.plusmessenger.data.api.AnterApi
 import com.anter.plusmessenger.data.api.AuthInterceptor
 import com.anter.plusmessenger.data.api.ServerUrlInterceptor
+import android.content.Context
+import androidx.room.Room
+import com.anter.plusmessenger.data.local.db.AnterDatabase
+import com.anter.plusmessenger.data.local.db.ConversationDao
+import com.anter.plusmessenger.data.local.db.MessageDao
 import com.anter.plusmessenger.util.Constants
+import dagger.hilt.android.qualifiers.ApplicationContext
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -58,4 +64,17 @@ object AppModule {
     @Provides
     @Singleton
     fun provideApi(retrofit: Retrofit): AnterApi = retrofit.create(AnterApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideDatabase(@ApplicationContext context: Context): AnterDatabase =
+        Room.databaseBuilder(context, AnterDatabase::class.java, "anter_cache.db")
+            .fallbackToDestructiveMigration()
+            .build()
+
+    @Provides
+    fun provideMessageDao(db: AnterDatabase): MessageDao = db.messageDao()
+
+    @Provides
+    fun provideConversationDao(db: AnterDatabase): ConversationDao = db.conversationDao()
 }

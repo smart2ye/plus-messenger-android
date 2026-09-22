@@ -3,6 +3,8 @@ package com.anter.plusmessenger.data.repository
 import com.anter.plusmessenger.data.api.AnterApi
 import com.anter.plusmessenger.data.api.models.ApiError
 import com.anter.plusmessenger.data.api.models.MessageDto
+import com.anter.plusmessenger.data.local.db.CachedMessageEntity
+import com.anter.plusmessenger.data.local.db.MessageDao
 import com.anter.plusmessenger.data.api.models.SendMessageRequest
 import com.anter.plusmessenger.data.api.models.TypingRequest
 import com.anter.plusmessenger.data.api.models.UserDto
@@ -24,10 +26,22 @@ sealed class SendResult {
 
 @Singleton
 class MessagesRepository @Inject constructor(
-    private val api: AnterApi
+    private val api: AnterApi,
+    private val messageDao: MessageDao
 ) {
     private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
     private val errorAdapter = moshi.adapter(ApiError::class.java)
+    private val messageAdapter = moshi.adapter(MessageDto::class.java)
+
+    suspend fun getCachedMessages(username: String): List<MessageDto> {
+        return try {
+            messageDao.getAll(username).mapNotNull { entity ->
+                try { messageAdapter.fromJson(entity.json) } catch (_: Throwable) { null }
+            }
+        } catch (_: Throwable) {
+            emptyList()
+        }
+    }
 
     suspend fun load(username: String, afterId: Int): MessagesResult {
         return try {
@@ -35,7 +49,22 @@ class MessagesRepository @Inject constructor(
             if (!resp.error.isNullOrBlank()) {
                 return MessagesResult.Error(resp.error)
             }
-            MessagesResult.Success(resp.user, resp.messages ?: emptyList())
+            val messages = resp.messages ?: emptyList()
+            if (messages.isNotEmpty()) {
+                if (afterId == 0) {
+                    messageDao.clearConversation(username)
+                }
+                val entities = messages.map { msg ->
+                    CachedMessageEntity(
+                        id = msg.id,
+                        conversationUsername = username,
+                        json = messageAdapter.toJson(msg),
+                        createdAtEpoch = 0L
+                    )
+                }
+                messageDao.upsertAll(entities)
+            }
+            MessagesResult.Success(resp.user, messages)
         } catch (e: HttpException) {
             MessagesResult.Error(parseError(e) ?: "فشل تحميل الرسائل (${e.code()}).")
         } catch (e: Exception) {
