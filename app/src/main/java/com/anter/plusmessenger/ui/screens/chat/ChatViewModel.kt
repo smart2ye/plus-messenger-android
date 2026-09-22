@@ -72,18 +72,38 @@ class ChatViewModel @Inject constructor(
     }
 
     private suspend fun loadInitial() {
-        _state.value = _state.value.copy(loading = true, error = null)
+        // 1) اعرض الكاش فورًا (تجربة سريعة بدون انتظار الشبكة)
+        val cached = repo.getCachedMessages(username)
+        if (cached.isNotEmpty()) {
+            lastMessageId = cached.maxOfOrNull { it.id } ?: 0
+            _state.value = _state.value.copy(
+                loading = false,
+                messages = cached
+            )
+        } else {
+            _state.value = _state.value.copy(loading = true, error = null)
+        }
+
+        // 2) ثم حمّل من الشبكة (سيحدّث الكاش + يعرض أي جديد)
         when (val r = repo.load(username, 0)) {
             is MessagesResult.Success -> {
-                lastMessageId = r.messages.maxOfOrNull { it.id } ?: 0
+                val merged = (cached + r.messages)
+                    .distinctBy { it.id }
+                    .sortedBy { it.id }
+                lastMessageId = merged.maxOfOrNull { it.id } ?: 0
                 _state.value = _state.value.copy(
                     loading = false,
-                    user = r.user,
-                    messages = r.messages
+                    user = r.user ?: _state.value.user,
+                    messages = merged
                 )
             }
             is MessagesResult.Error -> {
-                _state.value = _state.value.copy(loading = false, error = r.message)
+                // إن كان لدينا كاش، لا نُظهر الخطأ — الصفحة تعمل
+                if (cached.isEmpty()) {
+                    _state.value = _state.value.copy(loading = false, error = r.message)
+                } else {
+                    _state.value = _state.value.copy(loading = false)
+                }
             }
         }
     }
