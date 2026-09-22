@@ -13,3 +13,9 @@ captures/
 !debug.keystore
 _backup/
 _backup_icons/
+
+# نسخ احتياطية
+*.bak
+*.bak_*
+_backup/
+_backup_icons/
