@@ -18,12 +18,15 @@ import androidx.navigation.navArgument
 import com.anter.plusmessenger.ui.screens.chat.ChatScreen
 import com.anter.plusmessenger.ui.screens.conversations.ConversationsScreen
 import com.anter.plusmessenger.ui.screens.login.LoginScreen
+import com.anter.plusmessenger.ui.screens.profile.UserProfileScreen
 
 object Routes {
     const val LOGIN = "login"
     const val CONVERSATIONS = "conversations"
     const val CHAT = "chat/{username}"
+    const val USER_PROFILE = "user/{username}"
     fun chat(username: String) = "chat/$username"
+    fun userProfile(username: String) = "user/$username"
 }
 
 @Composable
@@ -64,6 +67,9 @@ fun AppNavigation() {
                 },
                 onOpenChat = { username ->
                     navController.navigate(Routes.chat(username))
+                },
+                onOpenProfile = { username ->
+                    navController.navigate(Routes.userProfile(username))
                 }
             )
         }
@@ -72,7 +78,24 @@ fun AppNavigation() {
             route = Routes.CHAT,
             arguments = listOf(navArgument("username") { type = NavType.StringType })
         ) {
-            ChatScreen(onBack = { navController.popBackStack() })
+            ChatScreen(
+                onBack = { navController.popBackStack() },
+                onOpenProfile = { username ->
+                    navController.navigate(Routes.userProfile(username))
+                }
+            )
+        }
+
+        composable(
+            route = Routes.USER_PROFILE,
+            arguments = listOf(navArgument("username") { type = NavType.StringType })
+        ) {
+            UserProfileScreen(
+                onBack = { navController.popBackStack() },
+                onOpenChat = { username ->
+                    navController.navigate(Routes.chat(username))
+                }
+            )
         }
     }
 }

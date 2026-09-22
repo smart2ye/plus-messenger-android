@@ -106,3 +106,39 @@ data class ContactsResponse(
     val contacts: List<UserDto>? = emptyList(),
     val error: String? = null
 )
+
+
+@JsonClass(generateAdapter = true)
+data class UserProfileResponse(
+    val user: UserProfileDto? = null,
+    val error: String? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class UserProfileDto(
+    val id: Int,
+    val username: String,
+    val name: String? = null,
+    val avatar: String? = null,
+    @Json(name = "isOnline") val isOnline: Boolean? = false,
+    val bio: String? = null,
+    @Json(name = "lastSeen") val lastSeen: String? = null,
+    @Json(name = "isFollowing") val isFollowing: Boolean = false,
+    @Json(name = "isFollowedBy") val isFollowedBy: Boolean = false,
+    @Json(name = "isBlocked") val isBlocked: Boolean = false,
+    @Json(name = "isMutual") val isMutual: Boolean = false,
+    @Json(name = "isSelf") val isSelf: Boolean = false
+)
+
+@JsonClass(generateAdapter = true)
+data class ReportUserRequest(
+    val reason: String,
+    val details: String? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class ReportUserResponse(
+    @Json(name = "success") val success: Boolean = false,
+    @Json(name = "reportId") val reportId: Int? = null,
+    val error: String? = null
+)

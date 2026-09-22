@@ -8,7 +8,10 @@ import com.anter.plusmessenger.data.api.models.MessagesResponse
 import com.anter.plusmessenger.data.api.models.SendMessageRequest
 import com.anter.plusmessenger.data.api.models.SendMessageResponse
 import com.anter.plusmessenger.data.api.models.TypingRequest
+import com.anter.plusmessenger.data.api.models.ReportUserRequest
+import com.anter.plusmessenger.data.api.models.ReportUserResponse
 import com.anter.plusmessenger.data.api.models.TypingResponse
+import com.anter.plusmessenger.data.api.models.UserProfileResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -25,6 +28,15 @@ interface AnterApi {
 
     @GET("api/mobile/contacts")
     suspend fun getContacts(): ContactsResponse
+
+    @GET("api/mobile/users/{username}")
+    suspend fun getUserProfile(@Path("username") username: String): UserProfileResponse
+
+    @POST("api/mobile/users/{username}/report")
+    suspend fun reportUser(
+        @Path("username") username: String,
+        @Body body: ReportUserRequest
+    ): ReportUserResponse
 
     @GET("api/mobile/conversations/{username}/messages")
     suspend fun getMessages(

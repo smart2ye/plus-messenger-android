@@ -1,6 +1,7 @@
 package com.anter.plusmessenger.ui.screens.chat
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -28,6 +29,7 @@ import com.anter.plusmessenger.util.AvatarUtil
 @Composable
 fun ChatScreen(
     onBack: () -> Unit,
+    onOpenProfile: (String) -> Unit,
     vm: ChatViewModel = hiltViewModel()
 ) {
     val state by vm.state.collectAsState()
@@ -53,7 +55,12 @@ fun ChatScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable {
+                            state.user?.username?.let { onOpenProfile(it) }
+                        }
+                    ) {
                         Box(modifier = Modifier.size(40.dp)) {
                             AsyncImage(
                                 model = AvatarUtil.url(state.user),

@@ -30,6 +30,7 @@ import com.anter.plusmessenger.util.AvatarUtil
 fun ConversationsScreen(
     onLogout: () -> Unit,
     onOpenChat: (String) -> Unit,
+    onOpenProfile: (String) -> Unit,
     vm: ConversationsViewModel = hiltViewModel()
 ) {
     val state by vm.state.collectAsState()
@@ -82,7 +83,8 @@ fun ConversationsScreen(
                             item(key = "online_section") {
                                 OnlineNowSection(
                                     contacts = onlineContacts,
-                                    onOpenChat = onOpenChat
+                                    onOpenChat = onOpenChat,
+                                    onOpenProfile = onOpenProfile
                                 )
                             }
                             item(key = "online_divider") {
@@ -93,7 +95,7 @@ fun ConversationsScreen(
                             }
                         }
                         items(state.items, key = { it.user.id }) { item ->
-                            ConversationRow(item) { onOpenChat(item.user.username) }
+                            ConversationRow(item, onOpenChat = { onOpenChat(item.user.username) }, onOpenProfile = { onOpenProfile(item.user.username) })
                             HorizontalDivider(
                                 modifier = Modifier.padding(start = 72.dp),
                                 color = MaterialTheme.colorScheme.surfaceVariant
@@ -109,16 +111,21 @@ fun ConversationsScreen(
 @Composable
 private fun ConversationRow(
     item: com.anter.plusmessenger.data.api.models.ConversationDto,
-    onClick: () -> Unit
+    onOpenChat: () -> Unit,
+    onOpenProfile: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(onClick = onOpenChat)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(modifier = Modifier.size(52.dp)) {
+        Box(
+            modifier = Modifier
+                .size(52.dp)
+                .clickable(onClick = onOpenProfile)
+        ) {
             AsyncImage(
                 model = AvatarUtil.url(item.user),
                 contentDescription = item.user.name ?: item.user.username,
@@ -166,7 +173,8 @@ private fun ConversationRow(
 @Composable
 private fun OnlineNowSection(
     contacts: List<com.anter.plusmessenger.data.api.models.UserDto>,
-    onOpenChat: (String) -> Unit
+    onOpenChat: (String) -> Unit,
+    onOpenProfile: (String) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -197,10 +205,13 @@ private fun OnlineNowSection(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .width(72.dp)
-                        .clickable { onOpenChat(contact.username) }
                         .padding(vertical = 4.dp)
                 ) {
-                    Box(modifier = Modifier.size(56.dp)) {
+                    Box(
+                        modifier = Modifier
+                            .size(56.dp)
+                            .clickable { onOpenProfile(contact.username) }
+                    ) {
                         AsyncImage(
                             model = AvatarUtil.url(contact),
                             contentDescription = contact.name ?: contact.username,
@@ -226,7 +237,9 @@ private fun OnlineNowSection(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onOpenProfile(contact.username) }
                     )
                 }
             }
