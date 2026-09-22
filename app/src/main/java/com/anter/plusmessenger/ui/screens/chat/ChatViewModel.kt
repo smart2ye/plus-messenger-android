@@ -40,6 +40,7 @@ class ChatViewModel @Inject constructor(
 
     private var lastMessageId: Int = 0
     private var typingJob: Job? = null
+    private var lastTypingSentAt: Long = 0L
 
     init {
         viewModelScope.launch {
@@ -131,11 +132,19 @@ class ChatViewModel @Inject constructor(
 
     fun onInputChanged(text: String) {
         if (text.isBlank()) return
+        val now = System.currentTimeMillis()
+
         typingJob?.cancel()
         typingJob = viewModelScope.launch {
-            repo.sendTyping(username, true)
-            delay(2500)
+            // نُرسل "يكتب الآن" مرة واحدة كل 5 ثوانٍ كحد أقصى.
+            if (now - lastTypingSentAt > 5000L) {
+                repo.sendTyping(username, true)
+                lastTypingSentAt = System.currentTimeMillis()
+            }
+            // إذا توقف المستخدم 5 ثوانٍ، نُبلّغ الخادم أنه توقف.
+            delay(5000)
             repo.sendTyping(username, false)
+            lastTypingSentAt = 0L
         }
     }
 
