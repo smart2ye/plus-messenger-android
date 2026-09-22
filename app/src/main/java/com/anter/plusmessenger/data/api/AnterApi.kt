@@ -1,5 +1,6 @@
 package com.anter.plusmessenger.data.api
 
+import com.anter.plusmessenger.data.api.models.ContactsResponse
 import com.anter.plusmessenger.data.api.models.ConversationsResponse
 import com.anter.plusmessenger.data.api.models.LoginRequest
 import com.anter.plusmessenger.data.api.models.LoginResponse
@@ -21,6 +22,9 @@ interface AnterApi {
 
     @GET("api/mobile/conversations")
     suspend fun getConversations(): ConversationsResponse
+
+    @GET("api/mobile/contacts")
+    suspend fun getContacts(): ContactsResponse
 
     @GET("api/mobile/conversations/{username}/messages")
     suspend fun getMessages(

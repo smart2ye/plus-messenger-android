@@ -99,3 +99,10 @@ data class TypingResponse(
     @Json(name = "isTyping") val isTyping: Boolean = false,
     val error: String? = null
 )
+
+
+@JsonClass(generateAdapter = true)
+data class ContactsResponse(
+    val contacts: List<UserDto>? = emptyList(),
+    val error: String? = null
+)

@@ -5,7 +5,9 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Logout
@@ -73,7 +75,22 @@ fun ConversationsScreen(
                     )
                 }
                 else -> {
+                    val onlineContacts = state.contacts.filter { it.isOnline == true }
                     LazyColumn(Modifier.fillMaxSize()) {
+                        if (onlineContacts.isNotEmpty()) {
+                            item(key = "online_section") {
+                                OnlineNowSection(
+                                    contacts = onlineContacts,
+                                    onOpenChat = onOpenChat
+                                )
+                            }
+                            item(key = "online_divider") {
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(top = 4.dp, bottom = 4.dp),
+                                    color = MaterialTheme.colorScheme.surfaceVariant
+                                )
+                            }
+                        }
                         items(state.items, key = { it.user.id }) { item ->
                             ConversationRow(item) { onOpenChat(item.user.username) }
                             HorizontalDivider(
@@ -142,5 +159,77 @@ private fun ConversationRow(
             Spacer(Modifier.width(8.dp))
             Badge { Text(item.unreadCount.toString()) }
         }
+    }
+}
+
+@Composable
+private fun OnlineNowSection(
+    contacts: List<com.anter.plusmessenger.data.api.models.UserDto>,
+    onOpenChat: (String) -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                "المتصلون الآن",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(Modifier.width(6.dp))
+            Text(
+                "(${contacts.size})",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(contacts, key = { it.id }) { contact ->
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .width(72.dp)
+                        .clickable { onOpenChat(contact.username) }
+                        .padding(vertical = 4.dp)
+                ) {
+                    Box(modifier = Modifier.size(56.dp)) {
+                        AsyncImage(
+                            model = AvatarUtil.url(contact),
+                            contentDescription = contact.name ?: contact.username,
+                            modifier = Modifier
+                                .size(56.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                            contentScale = ContentScale.Crop
+                        )
+                        Box(
+                            modifier = Modifier
+                                .size(14.dp)
+                                .align(Alignment.BottomEnd)
+                                .clip(CircleShape)
+                                .background(Color(0xFF26A649))
+                                .border(2.dp, MaterialTheme.colorScheme.surface, CircleShape)
+                        )
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = (contact.name ?: contact.username).split(" ").first(),
+                        style = MaterialTheme.typography.labelSmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        }
+        Spacer(Modifier.height(6.dp))
     }
 }

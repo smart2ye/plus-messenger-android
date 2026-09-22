@@ -3,6 +3,7 @@ package com.anter.plusmessenger.data.repository
 import com.anter.plusmessenger.data.api.AnterApi
 import com.anter.plusmessenger.data.api.models.ApiError
 import com.anter.plusmessenger.data.api.models.ConversationDto
+import com.anter.plusmessenger.data.api.models.UserDto
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import retrofit2.HttpException
@@ -12,6 +13,11 @@ import javax.inject.Singleton
 sealed class ConversationsResult {
     data class Success(val items: List<ConversationDto>) : ConversationsResult()
     data class Error(val message: String) : ConversationsResult()
+}
+
+sealed class ContactsResult {
+    data class Success(val items: List<UserDto>) : ContactsResult()
+    data class Error(val message: String) : ContactsResult()
 }
 
 @Singleton
@@ -32,6 +38,20 @@ class ConversationsRepository @Inject constructor(
             ConversationsResult.Error(parseError(e) ?: "فشل تحميل المحادثات (${e.code()}).")
         } catch (e: Exception) {
             ConversationsResult.Error(e.message ?: "تعذر تحميل المحادثات.")
+        }
+    }
+
+    suspend fun loadContacts(): ContactsResult {
+        return try {
+            val resp = api.getContacts()
+            if (!resp.error.isNullOrBlank()) {
+                return ContactsResult.Error(resp.error)
+            }
+            ContactsResult.Success(resp.contacts ?: emptyList())
+        } catch (e: HttpException) {
+            ContactsResult.Error(parseError(e) ?: "فشل تحميل جهات الاتصال (${e.code()}).")
+        } catch (e: Exception) {
+            ContactsResult.Error(e.message ?: "تعذر تحميل جهات الاتصال.")
         }
     }
 
