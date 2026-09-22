@@ -14,6 +14,8 @@ import javax.inject.Inject
 data class LoginUiState(
     val identifier: String = "",
     val password: String = "",
+    val serverUrl: String = "https://anter-1.onrender.com/",
+    val showAdvanced: Boolean = false,
     val loading: Boolean = false,
     val error: String? = null,
     val success: Boolean = false
@@ -29,6 +31,8 @@ class LoginViewModel @Inject constructor(
 
     fun onIdentifierChange(v: String) { _state.value = _state.value.copy(identifier = v, error = null) }
     fun onPasswordChange(v: String) { _state.value = _state.value.copy(password = v, error = null) }
+    fun onServerUrlChange(v: String) { _state.value = _state.value.copy(serverUrl = v, error = null) }
+    fun toggleAdvanced() { _state.value = _state.value.copy(showAdvanced = !_state.value.showAdvanced) }
 
     fun submit() {
         val s = _state.value
@@ -38,7 +42,7 @@ class LoginViewModel @Inject constructor(
         }
         _state.value = s.copy(loading = true, error = null)
         viewModelScope.launch {
-            when (val r = repo.login(s.identifier, s.password)) {
+            when (val r = repo.login(s.identifier, s.password, s.serverUrl)) {
                 is AuthResult.Success -> _state.value = _state.value.copy(loading = false, success = true)
                 is AuthResult.Error -> _state.value = _state.value.copy(loading = false, error = r.message)
             }

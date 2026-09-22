@@ -23,7 +23,10 @@ class AuthRepository @Inject constructor(
     private val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
     private val errorAdapter = moshi.adapter(ApiError::class.java)
 
-    suspend fun login(identifier: String, password: String): AuthResult {
+    suspend fun login(identifier: String, password: String, serverUrl: String? = null): AuthResult {
+        if (!serverUrl.isNullOrBlank()) {
+            tokenStore.saveServerUrl(serverUrl)
+        }
         return try {
             val resp = api.login(LoginRequest(identifier.trim(), password))
             val token = resp.accessToken

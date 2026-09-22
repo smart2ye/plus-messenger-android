@@ -93,6 +93,42 @@ fun LoginScreen(
                 enabled = !state.loading
             )
 
+            Spacer(Modifier.height(8.dp))
+
+            TextButton(
+                onClick = vm::toggleAdvanced,
+                enabled = !state.loading
+            ) {
+                Text(
+                    if (state.showAdvanced) "إخفاء الإعدادات المتقدمة"
+                    else "إعدادات متقدمة (عنوان الخادم)",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+            if (state.showAdvanced) {
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = state.serverUrl,
+                    onValueChange = vm::onServerUrlChange,
+                    label = { Text("عنوان الخادم") },
+                    placeholder = { Text("https://anter-1.onrender.com/") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Uri,
+                        imeAction = ImeAction.Done
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !state.loading
+                )
+                Text(
+                    text = "استخدم http://10.0.2.2:5050/ لمحاكي Android، أو عنوان IP جهازك للتشغيل المحلي.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
+                )
+            }
+
             if (state.error != null) {
                 Spacer(Modifier.height(12.dp))
                 Text(
