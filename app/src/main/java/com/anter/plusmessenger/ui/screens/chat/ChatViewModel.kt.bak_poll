@@ -52,7 +52,7 @@ class ChatViewModel @Inject constructor(
     private fun startMessagePolling() {
         viewModelScope.launch {
             while (isActive) {
-                delay(7000)
+                delay(3000)
                 loadNew()
             }
         }
@@ -61,7 +61,7 @@ class ChatViewModel @Inject constructor(
     private fun startTypingPolling() {
         viewModelScope.launch {
             while (isActive) {
-                delay(5000)
+                delay(2500)
                 val typing = repo.isOtherTyping(username)
                 if (typing != _state.value.otherTyping) {
                     _state.value = _state.value.copy(otherTyping = typing)
