@@ -2,6 +2,7 @@ package com.anter.plusmessenger.di
 
 import com.anter.plusmessenger.data.api.AnterApi
 import com.anter.plusmessenger.data.api.AuthInterceptor
+import com.anter.plusmessenger.data.api.ServerUrlInterceptor
 import com.anter.plusmessenger.util.Constants
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
