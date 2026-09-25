@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.PersonSearch
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
@@ -34,6 +35,7 @@ fun ConversationsScreen(
     onOpenChat: (String) -> Unit,
     onOpenProfile: (String) -> Unit,
     onOpenSettings: () -> Unit,
+    onOpenFindFriends: () -> Unit,
     vm: ConversationsViewModel = hiltViewModel()
 ) {
     val state by vm.state.collectAsState()
@@ -45,6 +47,9 @@ fun ConversationsScreen(
                 actions = {
                     IconButton(onClick = { vm.refresh() }) {
                         Icon(Icons.Filled.Refresh, contentDescription = "تحديث")
+                    }
+                    IconButton(onClick = onOpenFindFriends) {
+                        Icon(Icons.Filled.PersonSearch, contentDescription = "أشخاص قد تعرفهم")
                     }
                     IconButton(onClick = onOpenSettings) {
                         Icon(Icons.Filled.Settings, contentDescription = "الإعدادات")

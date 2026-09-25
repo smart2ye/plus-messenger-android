@@ -4,6 +4,8 @@ import com.anter.plusmessenger.data.api.models.ContactsResponse
 import com.anter.plusmessenger.data.api.models.BlockResponse
 import com.anter.plusmessenger.data.api.models.BlockedUsersResponse
 import com.anter.plusmessenger.data.api.models.ConversationsResponse
+import com.anter.plusmessenger.data.api.models.FindFriendsRequest
+import com.anter.plusmessenger.data.api.models.FindFriendsResponse
 import com.anter.plusmessenger.data.api.models.LoginRequest
 import com.anter.plusmessenger.data.api.models.LoginResponse
 import com.anter.plusmessenger.data.api.models.MessagesResponse
@@ -34,6 +36,9 @@ interface AnterApi {
 
     @GET("api/mobile/contacts")
     suspend fun getContacts(): ContactsResponse
+
+    @POST("api/mobile/find-friends")
+    suspend fun findFriends(@Body body: FindFriendsRequest): FindFriendsResponse
 
     @GET("api/mobile/users/{username}")
     suspend fun getUserProfile(@Path("username") username: String): UserProfileResponse

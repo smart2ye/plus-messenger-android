@@ -10,4 +10,10 @@ object AvatarUtil {
         val id = user?.id ?: return "$BASE/static/img/default_avatar_male.png"
         return "$BASE/media/avatar/$id"
     }
+
+    /** نسخة مباشرة تأخذ id بدل UserDto — تُستخدم في شاشات نتائج البحث. */
+    fun urlById(id: Int?): String {
+        if (id == null) return "$BASE/static/img/default_avatar_male.png"
+        return "$BASE/media/avatar/$id"
+    }
 }

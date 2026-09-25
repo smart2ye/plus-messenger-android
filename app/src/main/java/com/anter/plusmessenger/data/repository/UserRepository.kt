@@ -3,6 +3,8 @@ package com.anter.plusmessenger.data.repository
 import com.anter.plusmessenger.data.api.AnterApi
 import com.anter.plusmessenger.data.api.models.ApiError
 import com.anter.plusmessenger.data.api.models.BlockedUserDto
+import com.anter.plusmessenger.data.api.models.FindFriendDto
+import com.anter.plusmessenger.data.api.models.FindFriendsRequest
 import com.anter.plusmessenger.data.api.models.ReportUserRequest
 import com.anter.plusmessenger.data.api.models.UpdateSettingsRequest
 import com.anter.plusmessenger.data.api.models.UserProfileDto
@@ -30,6 +32,11 @@ sealed class SettingsResult {
 sealed class BlockedUsersResult {
     data class Success(val items: List<BlockedUserDto>) : BlockedUsersResult()
     data class Error(val message: String) : BlockedUsersResult()
+}
+
+sealed class FindFriendsResult {
+    data class Success(val suggested: List<FindFriendDto>, val matched: Int) : FindFriendsResult()
+    data class Error(val message: String) : FindFriendsResult()
 }
 
 sealed class SimpleResult {
@@ -131,6 +138,21 @@ class UserRepository @Inject constructor(
             SimpleResult.Error(parseError(e) ?: "فشل رفع الحظر (${e.code()}).")
         } catch (e: Exception) {
             SimpleResult.Error(e.message ?: "تعذر الاتصال بالخادم.")
+        }
+    }
+
+    suspend fun findFriends(hashes: List<String>): FindFriendsResult {
+        return try {
+            val resp = api.findFriends(FindFriendsRequest(hashes))
+            if (resp.success) {
+                FindFriendsResult.Success(resp.suggested ?: emptyList(), resp.matched)
+            } else {
+                FindFriendsResult.Error(resp.error ?: "فشل البحث.")
+            }
+        } catch (e: HttpException) {
+            FindFriendsResult.Error(parseError(e) ?: "فشل البحث (${e.code()}).")
+        } catch (e: Exception) {
+            FindFriendsResult.Error(e.message ?: "تعذر الاتصال بالخادم.")
         }
     }
 

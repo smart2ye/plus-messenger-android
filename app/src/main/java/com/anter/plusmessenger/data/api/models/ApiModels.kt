@@ -193,3 +193,29 @@ data class BlockResponse(
     @Json(name = "isBlocked") val isBlocked: Boolean = false,
     val error: String? = null
 )
+
+@JsonClass(generateAdapter = true)
+data class FindFriendsRequest(
+    val hashes: List<String>
+)
+
+@JsonClass(generateAdapter = true)
+data class FindFriendDto(
+    val id: Int,
+    val username: String,
+    val name: String? = null,
+    val avatar: String? = null,
+    @Json(name = "isOnline") val isOnline: Boolean? = false,
+    val bio: String? = null,
+    @Json(name = "lastSeen") val lastSeen: String? = null,
+    @Json(name = "isFollowing") val isFollowing: Boolean = false
+)
+
+@JsonClass(generateAdapter = true)
+data class FindFriendsResponse(
+    @Json(name = "success") val success: Boolean = false,
+    val suggested: List<FindFriendDto>? = emptyList(),
+    val matched: Int = 0,
+    val submitted: Int = 0,
+    val error: String? = null
+)

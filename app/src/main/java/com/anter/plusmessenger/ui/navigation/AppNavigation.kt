@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.anter.plusmessenger.ui.screens.chat.ChatScreen
 import com.anter.plusmessenger.ui.screens.conversations.ConversationsScreen
+import com.anter.plusmessenger.ui.screens.findfriends.FindFriendsScreen
 import com.anter.plusmessenger.ui.screens.login.LoginScreen
 import com.anter.plusmessenger.ui.screens.profile.UserProfileScreen
 import com.anter.plusmessenger.ui.screens.settings.SettingsScreen
@@ -27,6 +28,7 @@ object Routes {
     const val CHAT = "chat/{username}"
     const val USER_PROFILE = "user/{username}"
     const val SETTINGS = "settings"
+    const val FIND_FRIENDS = "find_friends"
     fun chat(username: String) = "chat/$username"
     fun userProfile(username: String) = "user/$username"
 }
@@ -75,6 +77,9 @@ fun AppNavigation() {
                 },
                 onOpenSettings = {
                     navController.navigate(Routes.SETTINGS)
+                },
+                onOpenFindFriends = {
+                    navController.navigate(Routes.FIND_FRIENDS)
                 }
             )
         }
@@ -105,6 +110,15 @@ fun AppNavigation() {
 
         composable(Routes.SETTINGS) {
             SettingsScreen(onBack = { navController.popBackStack() })
+        }
+
+        composable(Routes.FIND_FRIENDS) {
+            FindFriendsScreen(
+                onBack = { navController.popBackStack() },
+                onOpenProfile = { username ->
+                    navController.navigate(Routes.userProfile(username))
+                }
+            )
         }
     }
 }
