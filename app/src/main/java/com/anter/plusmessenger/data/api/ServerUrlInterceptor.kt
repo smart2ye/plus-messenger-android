@@ -1,6 +1,7 @@
 package com.anter.plusmessenger.data.api
 
 import com.anter.plusmessenger.data.local.TokenStore
+import com.anter.plusmessenger.util.AvatarUtil
 import kotlinx.coroutines.runBlocking
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.Interceptor
@@ -19,6 +20,9 @@ class ServerUrlInterceptor @Inject constructor(
     override fun intercept(chain: Interceptor.Chain): Response {
         val serverUrl = runBlocking { tokenStore.getServerUrl() }
         val base = serverUrl.toHttpUrlOrNull() ?: return chain.proceed(chain.request())
+
+        // نُبلّغ AvatarUtil ليستخدم نفس الخادم في روابط الصور.
+        AvatarUtil.setBase(base.toString())
 
         val original = chain.request()
         val oldUrl = original.url
