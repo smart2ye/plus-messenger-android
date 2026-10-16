@@ -38,12 +38,19 @@ android {
 
     signingConfigs {
         create("release") {
-            val keystorePath = System.getenv("ANDROID_KEYSTORE_PATH")
-            if (!keystorePath.isNullOrBlank() && file(keystorePath).exists()) {
-                storeFile = file(keystorePath)
-                storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
-                keyAlias = System.getenv("ANDROID_KEY_ALIAS")
-                keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+            val ksPath = providers.environmentVariable("ANDROID_KEYSTORE_PATH").orNull
+            val ksPass = providers.environmentVariable("ANDROID_KEYSTORE_PASSWORD").orNull
+            val keyAliasEnv = providers.environmentVariable("ANDROID_KEY_ALIAS").orNull
+            val keyPass = providers.environmentVariable("ANDROID_KEY_PASSWORD").orNull
+
+            if (!ksPath.isNullOrBlank() && file(ksPath).exists()) {
+                storeFile = file(ksPath)
+                storePassword = ksPass
+                keyAlias = keyAliasEnv
+                keyPassword = keyPass
+                println("Signing: keystore detected at $ksPath, alias=$keyAliasEnv")
+            } else {
+                println("Signing: keystore NOT FOUND. path=$ksPath")
             }
         }
     }
