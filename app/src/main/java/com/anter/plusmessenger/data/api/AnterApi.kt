@@ -19,10 +19,14 @@ import com.anter.plusmessenger.data.api.models.TypingResponse
 import com.anter.plusmessenger.data.api.models.UpdateSettingsRequest
 import com.anter.plusmessenger.data.api.models.UpdateSettingsResponse
 import com.anter.plusmessenger.data.api.models.UserProfileResponse
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -74,6 +78,14 @@ interface AnterApi {
     suspend fun sendMessage(
         @Path("username") username: String,
         @Body body: SendMessageRequest
+    ): SendMessageResponse
+
+    @Multipart
+    @POST("api/mobile/conversations/{username}/messages")
+    suspend fun sendMessageWithAttachment(
+        @Path("username") username: String,
+        @Part("content") content: RequestBody,
+        @Part attachment: MultipartBody.Part
     ): SendMessageResponse
 
     @POST("api/mobile/conversations/{username}/typing")

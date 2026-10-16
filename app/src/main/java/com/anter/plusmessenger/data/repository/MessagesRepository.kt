@@ -10,7 +10,15 @@ import com.anter.plusmessenger.data.api.models.TypingRequest
 import com.anter.plusmessenger.data.api.models.UserDto
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import android.content.Context
+import android.net.Uri
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
+import java.io.File
+import java.io.FileOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -85,6 +93,59 @@ class MessagesRepository @Inject constructor(
             SendResult.Error(parseError(e) ?: "فشل إرسال الرسالة (${e.code()}).")
         } catch (e: Exception) {
             SendResult.Error(e.message ?: "تعذر إرسال الرسالة.")
+        }
+    }
+
+    suspend fun sendWithAttachment(
+        context: Context,
+        username: String,
+        content: String,
+        uri: Uri
+    ): SendResult {
+        return try {
+            val (file, mimeType) = copyUriToTempFile(context, uri)
+                ?: return SendResult.Error("تعذر قراءة الملف المختار.")
+
+            val contentPart = content.toRequestBody("text/plain".toMediaTypeOrNull())
+            val filePart = MultipartBody.Part.createFormData(
+                "attachment",
+                file.name,
+                file.asRequestBody(mimeType.toMediaTypeOrNull())
+            )
+
+            val resp = api.sendMessageWithAttachment(username, contentPart, filePart)
+            file.delete()
+
+            val msg = resp.message
+            if (msg == null) {
+                SendResult.Error(resp.error ?: "لم يتم استلام الرسالة من الخادم.")
+            } else {
+                SendResult.Success(msg, resp.assistantMessage)
+            }
+        } catch (e: HttpException) {
+            SendResult.Error(parseError(e) ?: "فشل إرسال المرفق (${e.code()}).")
+        } catch (e: Exception) {
+            SendResult.Error(e.message ?: "تعذر إرسال المرفق.")
+        }
+    }
+
+    private fun copyUriToTempFile(context: Context, uri: Uri): Pair<File, String>? {
+        return try {
+            val mimeType = context.contentResolver.getType(uri) ?: "application/octet-stream"
+            val ext = when {
+                mimeType.contains("jpeg") || mimeType.contains("jpg") -> "jpg"
+                mimeType.contains("png") -> "png"
+                mimeType.contains("webp") -> "webp"
+                mimeType.contains("gif") -> "gif"
+                else -> "bin"
+            }
+            val tmp = File.createTempFile("anter_upload_", ".$ext", context.cacheDir)
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                FileOutputStream(tmp).use { output -> input.copyTo(output) }
+            } ?: return null
+            Pair(tmp, mimeType)
+        } catch (_: Exception) {
+            null
         }
     }
 

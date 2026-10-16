@@ -12,7 +12,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.AttachFile
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.*
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
@@ -36,6 +42,15 @@ fun ChatScreen(
     val listState = rememberLazyListState()
     var input by remember { mutableStateOf("") }
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            vm.sendAttachment(context, uri, input.trim())
+            input = ""
+        }
+    }
 
     LaunchedEffect(state.messages.size) {
         if (state.messages.isNotEmpty()) {
@@ -159,6 +174,16 @@ fun ChatScreen(
                     .padding(8.dp),
                 verticalAlignment = Alignment.Bottom
             ) {
+                IconButton(
+                    onClick = {
+                        imagePicker.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    },
+                    enabled = !state.sending
+                ) {
+                    Icon(Icons.Filled.AttachFile, contentDescription = "إرفاق صورة")
+                }
                 OutlinedTextField(
                     value = input,
                     onValueChange = {
@@ -227,12 +252,31 @@ private fun MessageBubble(
                     }
                 }
                 message.attachment?.let { att ->
-                    Text(
-                        "\uD83D\uDCCE ${att.name ?: "مرفق"}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
+                    val baseUrl = com.anter.plusmessenger.util.Constants.BASE_URL.trimEnd('/')
+                    val path = att.downloadPath ?: ""
+                    val fullUrl = if (path.startsWith("http")) path else "$baseUrl$path"
+                    val isImage = (att.kind == "image") ||
+                                  (att.mimeType?.startsWith("image/") == true)
+
+                    if (isImage) {
+                        AsyncImage(
+                            model = fullUrl,
+                            contentDescription = att.name ?: "صورة",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 280.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .padding(bottom = 4.dp),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Text(
+                            "\uD83D\uDCCE ${att.name ?: "مرفق"}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                    }
                 }
                 if (!message.content.isNullOrBlank()) {
                     Text(message.content, style = MaterialTheme.typography.bodyMedium)

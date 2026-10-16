@@ -1,5 +1,7 @@
 package com.anter.plusmessenger.ui.screens.chat
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -136,6 +138,25 @@ class ChatViewModel @Inject constructor(
         _state.value = _state.value.copy(sending = true, error = null)
         viewModelScope.launch {
             when (val r = repo.send(username, text)) {
+                is SendResult.Success -> {
+                    val merged = (_state.value.messages + listOfNotNull(r.message, r.assistantMessage))
+                        .distinctBy { it.id }
+                        .sortedBy { it.id }
+                    lastMessageId = merged.maxOfOrNull { it.id } ?: lastMessageId
+                    _state.value = _state.value.copy(messages = merged, sending = false)
+                }
+                is SendResult.Error -> {
+                    _state.value = _state.value.copy(sending = false, error = r.message)
+                }
+            }
+        }
+    }
+
+    fun sendAttachment(context: Context, uri: Uri, caption: String = "") {
+        if (_state.value.sending) return
+        _state.value = _state.value.copy(sending = true, error = null)
+        viewModelScope.launch {
+            when (val r = repo.sendWithAttachment(context, username, caption, uri)) {
                 is SendResult.Success -> {
                     val merged = (_state.value.messages + listOfNotNull(r.message, r.assistantMessage))
                         .distinctBy { it.id }
