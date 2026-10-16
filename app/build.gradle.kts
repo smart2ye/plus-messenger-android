@@ -20,22 +20,6 @@ android {
         vectorDrawables { useSupportLibrary = true }
     }
 
-    buildTypes {
-        debug {
-            isMinifyEnabled = false
-            applicationIdSuffix = ".debug"
-        }
-        release {
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-            signingConfig = signingConfigs.findByName("release")
-        }
-    }
-
     signingConfigs {
         create("release") {
             val ksPath = providers.environmentVariable("ANDROID_KEYSTORE_PATH").orNull
@@ -54,6 +38,26 @@ android {
             }
         }
     }
+
+    buildTypes {
+        debug {
+            isMinifyEnabled = false
+            applicationIdSuffix = ".debug"
+        }
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            signingConfig = signingConfigs.findByName("release")
+        }
+    }
+
+
+
+
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
