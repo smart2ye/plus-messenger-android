@@ -51,19 +51,28 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: gradle assembleRelease --no-daemon --stacktrace
 
+      - name: List APK outputs
+        run: |
+          echo "=== كل ملفات APK ==="
+          find . -type f -name "*.apk" | head -20
+          echo "=== محتوى outputs ==="
+          ls -laR app/build/outputs/ 2>/dev/null | head -40
+
       - name: Verify APK signed
         run: |
-          APK=app/build/outputs/apk/release/app-release.apk
-          if [ ! -f "$APK" ]; then
-            echo "::error::APK غير موجود: $APK"
+          APK=$(find . -type f -name "*.apk" -path "*release*" | head -1)
+          if [ -z "$APK" ]; then
+            echo "::error::لا يوجد APK في release"
             exit 1
           fi
+          echo "APK: $APK"
+          echo "RELEASE_APK_PATH=$APK" >> $GITHUB_ENV
           ls -la "$APK"
 
       - name: Rename APK
         run: |
           mkdir -p release-out
-          cp app/build/outputs/apk/release/app-release.apk release-out/PlusMessenger.apk
+          cp "$RELEASE_APK_PATH" release-out/PlusMessenger.apk
           sha256sum release-out/PlusMessenger.apk | tee release-out/SHA256.txt
 
       - name: Upload Release APK artifact
